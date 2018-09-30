@@ -46,6 +46,13 @@ static const char slash = '/';
 
 #define RETRO_GAME_TYPE_GAMEBOY_LINK_2P 0x101
 
+#if !defined(ANDROID) && !defined(SWITCH)
+long random(void)
+{
+    return rand();
+}
+#endif
+
 char battery_save_path[512];
 char symbols_path[512];
 
@@ -850,10 +857,7 @@ void retro_run(void)
         }
     }
     else
-    {
-        int x = GB_run_frame(&gameboy[0]);
-        log_cb(RETRO_LOG_DEBUG, "%d\n", x);
-    }
+        GB_run_frame(&gameboy[0]);
 
     if (emulated_devices == 2)
     {
@@ -927,7 +931,10 @@ bool retro_load_game(const struct retro_game_info *info)
 void retro_unload_game(void)
 {
     for (int i = 0; i < emulated_devices; i++)
+    {
+        log_cb(RETRO_LOG_INFO, "Unloading GB: %d\n", emulated_devices);
         GB_free(&gameboy[i]);
+    }
 }
 
 unsigned retro_get_region(void)
